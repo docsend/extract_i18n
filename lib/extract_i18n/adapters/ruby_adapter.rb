@@ -122,7 +122,21 @@ module ExtractI18n::Adapters
       node.children[1] == :require ||
         node.type == :regexp ||
         (node.type == :pair && ExtractI18n.ignore_hash_keys.include?(node.children[0].children[0].to_s)) ||
-        (node.type == :send && ExtractI18n.ignore_functions.include?(node.children[1].to_s))
+        (node.type == :send && ExtractI18n.ignore_functions.include?(node.children[1].to_s)) ||
+        (node.type == :send &&
+          node.children[0] &&
+          node.children[0].type == :send &&
+          # Rails.logger methods should be ignored
+          # also ignores logger.info variations
+          node.children[0].children[1].to_s == 'logger'
+        ) ||
+        (node.type == :send &&
+          node.children[0] &&
+          node.children[0].type == :const &&
+          # RuntimeError means bugsnag so check parent for ignoring
+          node.children[0].children[1].to_s == 'RuntimeError' &&
+          @nesting[-3] && ignore_parent?(@nesting[-3])
+        )
     end
   end
 end
