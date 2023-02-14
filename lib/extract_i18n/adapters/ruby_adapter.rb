@@ -122,6 +122,11 @@ module ExtractI18n::Adapters
       node.children[1] == :require ||
         node.type == :regexp ||
         (node.type == :pair && ExtractI18n.ignore_hash_keys.include?(node.children[0].children[0].to_s)) ||
+        (node.type == :pair &&
+          node.children[0].children[0].to_s == 'description' &&
+          # Look up to possible _t function call
+          @nesting[-4] && ignore_parent?(@nesting[-4])
+        ) ||
         (node.type == :send && ExtractI18n.ignore_functions.include?(node.children[1].to_s)) ||
         (node.type == :send &&
           node.children[0] &&
