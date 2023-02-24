@@ -29,7 +29,7 @@ module ExtractI18n
       source_line:,
       remove:,
       # we are using our own _t method by default
-      t_template: %{_t("%s"%s)},
+      t_template: %{_t("%s"%s, description: '')},
       interpolation_type: :ruby
     )
       @i18n_string = i18n_string
@@ -50,7 +50,7 @@ module ExtractI18n
       end
       if @source_line[@remove]
         s += PASTEL.cyan("with:     ") + PASTEL.blue(@source_line).
-          gsub(@remove, PASTEL.green(i18n_t))
+             gsub(@remove, PASTEL.green(i18n_t))
       else
         s += PASTEL.cyan("with:     ") + PASTEL.green(i18n_t)
       end
@@ -68,12 +68,6 @@ module ExtractI18n
                  else
                    key
                  end
-      # let's not have dangling commas for strings with no arguments
-      @t_template = if i18n_arguments_string.length > 0
-                      %{_t("%s"%s)}
-                    else
-                      %{_t("%s")}
-                    end
       sprintf(@t_template, i18n_key, i18n_arguments_string)
     end
 
